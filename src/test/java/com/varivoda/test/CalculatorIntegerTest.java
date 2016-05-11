@@ -128,7 +128,7 @@ public class CalculatorIntegerTest {
      * @param operand2
      * @param operator строка, претендующая на звание оператора
      * @return возвращает результат операции
-     * @throws IllegalArgumentException метож кидает исключение, если параметр operator не является одним из + - * /
+     * @throws IllegalArgumentException метод кидает исключение, если параметр operator не является одним из + - * /
      */
     private static long operation(long operand1, long operand2, String operator) throws IllegalArgumentException{
         switch (operator){
@@ -136,7 +136,7 @@ public class CalculatorIntegerTest {
             case "*": return operand1 * operand2;
             case "-": return operand1 - operand2;
             case "/": return operand1 / operand2;
-            default: throw new IllegalArgumentException("Invalid operator: " + operator);
+            default: throw new IllegalArgumentException();
         }
     }
 }
