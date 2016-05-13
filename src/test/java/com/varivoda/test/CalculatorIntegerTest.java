@@ -5,26 +5,27 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ru.yandex.qatools.allure.annotations.Parameter;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
 /**
  * Created by ivan on 06.05.16.
- * Тест выполняет проверку операций, считанных из файла
+ * Тест выполняет проверку операций, считанных из файла,
+ * который задается абсолютным путем PATH_DATA_FILE
  * при этом все числовые данные представляются типом long,
  * что позволяет обрабатывать большие целые значения.
  */
 @RunWith(Parameterized.class)
 public class CalculatorIntegerTest {
+
+    public static final String PATH_DATA_FILE = "/home/ivan/Desktop/test";
 
     @Parameter("Operand 1")
     private String operand1Str;
@@ -43,53 +44,32 @@ public class CalculatorIntegerTest {
     }
 
 
-    /**
-     * Метод возвращает поток ввода по имени файла, расположенного в src с тестами
-     */
-    private static InputStream getInputStreamFromFile(String fileName){
-        return CalculatorIntegerTest.class.getClassLoader().getResourceAsStream(fileName);
-    }
-
-    /**
-     * Метод возвращает поток ввода по абсолютному пути файла
-     * @param path - путь к файлу
-     * @throws IOException
-     */
-    private static InputStream getFileInputStreamByPath(String path) throws IOException {
-        return Files.newInputStream(Paths.get(path));
-    }
-
     //Метод возвращает список массивов параметров, считанных из файла
     @Parameterized.Parameters
     public static Collection<Object[]> dataProviderFromFile(){
 
+        Stream<String> fileLinesStream = null;
+        try {
+            fileLinesStream = Files.lines(Paths.get(PATH_DATA_FILE));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         /*
-        Список массивов длины 4.
+        resultObjectList - Список массивов длины 4.
         Каждому массиву соответствует строчка из файла
         На первом месте данные операнда 1
         На втором данные операнда 2
         На третьем строка, соответствующая оператору + - / *
         На четвертом данные результата для проверки
         */
-        List<Object[]> resultObjectList = new LinkedList<>();
+        List<Object[]> resultObjectList = null;
 
-        try(BufferedReader br  = new BufferedReader(new InputStreamReader(getInputStreamFromFile("dataFile.txt")))) {
+        if (fileLinesStream != null) {
+            resultObjectList = fileLinesStream.map(s -> s.split(";")).collect(Collectors.toList());
+        }
 
-            String line;
-                /*
-                Считываем все строчки из файла по очереди
-                Преобразуем в массив по правилу:  разделитель: ";"
-                Записываем массивы в результирующий список
-                 */
-            while( (line = br.readLine()) != null)
-            {
-                resultObjectList.add(line.split(";"));
-            }
-        }
-        // Отлавливаем ошибку, которая может возникнуть при работе с файлом
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+//        resultObjectList.stream().map(Arrays::toString).forEach(System.out::println);
 
         return  resultObjectList;
     }
